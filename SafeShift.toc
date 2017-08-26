@@ -1,0 +1,9 @@
+## Interface: 11200
+## Author: Idiot
+## Title: SafeShift
+## Notes: Safety measure against accidentally unshifting immediately after shapeshifting
+## Version: 0.meow
+## DefaultState: enabled
+## SavedVariables: SafeShiftOptions
+
+SafeShift.lua
