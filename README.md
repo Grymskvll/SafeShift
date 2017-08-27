@@ -9,6 +9,6 @@ Extract into your "World of Warcraft/Interface/Addons" folder. If downloaded dir
 * Configurable safety period during which you can't unshift. This prevents accidentally unshifting while mashing a shapeshift key.
 
 ## Usage
-/safeshift - lists commands and shows current safety setting.
-/safeshift [cat | bear | direbear | travel | moonkin | aquatic] - safely shift into form without unshifting for the set period.
-/safeshift [cd | cooldown] <value in seconds> - sets the safe period during which you may not unshift. Default: 0.5 seconds.
+* /safeshift - lists commands and shows current safety setting.
+* /safeshift [cat | bear | direbear | travel | moonkin | aquatic] - safely shift into form without unshifting for the set period.
+* /safeshift [cd | cooldown] <value in seconds> - sets the safe period during which you may not unshift. Default: 0.5 seconds.
