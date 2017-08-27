@@ -1,60 +1,75 @@
-local msgForms = {
-	cat = "Cat Form",
-	bear = "Bear Form",
-	direbear = "Dire Bear Form",
-	travel = "Travel Form",
-	moonkin = "Moonkin Form",
-	aquatic = "Aquatic Form",
-}
 local fileLocalCD
 local canUnshift = true
 
+local spellNameMap =
+{
+	direbear = "Dire Bear Form",
+	bear = "Bear Form",
+	aquatic = "Aquatic Form",
+	cat = "Cat Form",
+	travel = "Travel Form",
+	moonkin = "Moonkin Form",
+}
+
+local forms = {}
+forms.map = {}
+function forms:Update()
+	-- forms = {}
+	forms.map = {}
+	local numForms = GetNumShapeshiftForms()
+	for i=1, numForms do
+		local _, name = GetShapeshiftFormInfo(i);
+		for form,spellName in pairs(spellNameMap) do
+			if string.lower(name)==string.lower(spellName) then
+				forms.map[form] = i
+				break
+			end
+		end
+	end
+end
+
 local SafeShift = CreateFrame("Frame")
 SafeShift:RegisterEvent("ADDON_LOADED")
+SafeShift:RegisterEvent("UPDATE_SHAPESHIFT_FORMS")
 
 function SafeShift:OnEvent()
-    if event == "ADDON_LOADED" and arg1 == "SafeShift" then
-        -- Our saved variables, if they exist, have been loaded at this point.
-        if SafeShiftOptions == nil then
-            -- This is the first time this addon is loaded; set SVs to default values
-            SafeShiftOptions = {
+	if event == "ADDON_LOADED" and arg1 == "SafeShift" then
+		-- Our saved variables, if they exist, have been loaded at this point.
+		if SafeShiftOptions == nil then
+			-- This is the first time this addon is loaded; set SVs to default values
+			SafeShiftOptions = {
 				unshiftCooldown = 0.5,	-- in seconds
 			}
-        end
+		end		
+		forms:Update()
 		fileLocalCD = SafeShiftOptions.unshiftCooldown
+	elseif event == "UPDATE_SHAPESHIFT_FORMS" then
+		forms:Update()
 	end
 end
 SafeShift:SetScript("OnEvent", SafeShift.OnEvent)
 
--- pilfered (and mangled) from SuperMacro (god bless)
-local function FindBuff( obuff)
-	local buff=strlower(obuff);
-	local tooltip=GameTooltip;
-	local textleft1=getglobal(tooltip:GetName().."TextLeft1");
-	for i=0, 24 do
-		tooltip:SetOwner(UIParent, "ANCHOR_NONE");
-		tooltip:SetPlayerBuff(i);
-		b = textleft1:GetText();
-		tooltip:Hide();
-		local c=nil;
-		if ( b and strfind(strlower(b), buff) ) then
-			return "buff", i, b;
-		elseif ( c==b ) then
-			break;
+local function GetShapeshiftForm()
+	for _,index in pairs(forms.map) do
+		local _, _, active = GetShapeshiftFormInfo(index)
+		if active then
+			return index
 		end
 	end
-end	
+	return 0	-- 0 = humanoid
+end
 
-function SafeShift:Shift(form)	
-	local canShift = true
-	local spell = msgForms[form]
-	if FindBuff(spell) ~= nil then
+function SafeShift:Shift(form)
+	local formIndex = forms.map[form]
+	local currentForm = GetShapeshiftForm()
+
+	if formIndex == currentForm or currentForm ~= 0 then
 		if canUnshift == true then
-			CastSpellByName(spell)
+			CastShapeshiftForm(currentForm)
 			SafeShift:SetScript("OnUpdate", nil)
 		end
 	else
-		CastSpellByName(spell)
+		CastShapeshiftForm(formIndex)
 		SafeShift:SetScript("OnUpdate", SafeShift.OnUpdate)
 		canUnshift = false
 	end
@@ -64,7 +79,6 @@ local total = 0
 function SafeShift:OnUpdate()
     total = total + arg1
     if total >= fileLocalCD then
-        -- DEFAULT_CHAT_FRAME:AddMessage("ping!")
         total = 0
 		canUnshift = true
 		SafeShift:SetScript("OnUpdate", nil)
@@ -114,7 +128,7 @@ function SlashCmdList.SAFESHIFT(msg)
 				SafeShiftOptions.unshiftCooldown = cd
 				fileLocalCD = cd
 			end
-		elseif msgForms[args[1]] ~= nil then
+		elseif spellNameMap[args[1]] ~= nil then
 			local form = args[1]
 			if form then
 				SafeShift:Shift(form)
