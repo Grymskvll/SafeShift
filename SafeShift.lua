@@ -124,7 +124,7 @@ function SlashCmdList.SAFESHIFT(msg)
 		if args[1] == "cooldown" or args[1] == "cd" then
 			local cd = tonumber(args[2])
 			if cd then
-				DEFAULT_CHAT_FRAME:AddMessage(string.format("[SafeShift] Setting unshift cooldown to %s second(s).", cd))
+				-- DEFAULT_CHAT_FRAME:AddMessage(string.format("[SafeShift] Setting unshift cooldown to %s second(s).", cd))
 				SafeShiftOptions.unshiftCooldown = cd
 				fileLocalCD = cd
 			end
